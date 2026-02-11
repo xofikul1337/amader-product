@@ -1,0 +1,17 @@
+{
+  "name": "Amader Product",
+  "short_name": "Amader",
+  "description": "Premium Bangladeshi pantry staples and artisan foods.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f3c6c0",
+  "theme_color": "#e07a4f",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

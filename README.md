@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amader Product
+
+Modern ecommerce landing site built with Next.js App Router and React. Optimized for fast loading, SEO metadata, and Facebook Pixel tracking.
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` to view the site.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Configuration
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Create a `.env.local` file in the project root:
 
-## Learn More
+```bash
+NEXT_PUBLIC_FACEBOOK_PIXEL_ID=YOUR_PIXEL_ID
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SUPABASE_URL=YOUR_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR_SUPABASE_ANON_KEY
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SUPABASE_SERVICE_ROLE_KEY
+```
 
-To learn more about Next.js, take a look at the following resources:
+- `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` enables Facebook Pixel tracking globally.
+- `NEXT_PUBLIC_SITE_URL` is used for absolute URLs in metadata or sitemaps if you add them later.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required for auth and public reads.
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only and powers admin APIs.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Product Data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Update products in `src/data/products.ts`.
 
-## Deploy on Vercel
+## Admin Panel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Admin URL: `/admin`
+- Login uses Supabase Auth.
+- Make your user admin:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+update public.profiles
+set is_admin = true
+where id = 'YOUR_USER_UUID';
+```
+
+- Admin schema extensions: run `supabase/admin_schema.sql` in Supabase SQL Editor.
+
+## Storage
+
+Create a public bucket named `files` for product image uploads.
+
+## Build
+
+```bash
+npm run build
+npm run start
+```
