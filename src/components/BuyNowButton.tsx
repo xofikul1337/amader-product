@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { addToCart } from "@/lib/cart";
+import { trackAddToCart, trackEvent } from "@/lib/tracking.client";
 
 type BuyNowButtonProps = {
   item: {
@@ -24,6 +25,12 @@ export default function BuyNowButton({ item, className, quantity }: BuyNowButton
 
   const handleClick = () => {
     addToCart(item, quantity ?? 1);
+    trackAddToCart(item, quantity ?? 1);
+    trackEvent("buy_now_click", {
+      item_id: item.slug || item.id,
+      item_name: item.name,
+      quantity: quantity ?? 1,
+    });
     setAnimating(true);
     setTimeout(() => {
       setAnimating(false);

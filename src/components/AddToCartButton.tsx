@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { addToCart } from "@/lib/cart";
+import { trackAddToCart } from "@/lib/tracking.client";
 
 type AddToCartButtonProps = {
   item: {
@@ -21,6 +22,7 @@ export default function AddToCartButton({ item, quantity }: AddToCartButtonProps
 
   const handleClick = () => {
     addToCart(item, quantity ?? 1);
+    trackAddToCart(item, quantity ?? 1);
     setAnimating(true);
     setTimeout(() => setAnimating(false), 250);
   };

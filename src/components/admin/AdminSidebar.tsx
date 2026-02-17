@@ -7,6 +7,7 @@ const navItems = [
   { label: "Dashboard", href: "/admin" },
   { label: "Total Order", href: "/admin/orders" },
   { label: "Review", href: "/admin/reviews" },
+  { label: "Enter Google Tag Manager ID", href: "/admin/tracking" },
 ];
 
 export default function AdminSidebar() {

@@ -8,6 +8,7 @@ import { formatDiscount, formatTaka } from "@/lib/format";
 import FavoriteButton from "@/components/FavoriteButton";
 import AddToCartButton from "@/components/AddToCartButton";
 import BuyNowButton from "@/components/BuyNowButton";
+import { trackSelectItem } from "@/lib/tracking.client";
 
 type ProductCardProps = {
   product: Product;
@@ -27,6 +28,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       return;
     }
     const nextUrl = `/products/${product.slug}`;
+    trackSelectItem(
+      {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        price: product.price,
+        salePrice: product.salePrice ?? null,
+        category: product.category,
+      },
+      "product_grid",
+    );
     setLoading(true);
     if (typeof document !== "undefined" && "startViewTransition" in document) {
       (document as unknown as { startViewTransition: (cb: () => void) => void })
@@ -48,6 +60,17 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       const nextUrl = `/products/${product.slug}`;
+      trackSelectItem(
+        {
+          id: product.id,
+          slug: product.slug,
+          name: product.name,
+          price: product.price,
+          salePrice: product.salePrice ?? null,
+          category: product.category,
+        },
+        "product_grid",
+      );
       setLoading(true);
       if (typeof document !== "undefined" && "startViewTransition" in document) {
         (document as unknown as { startViewTransition: (cb: () => void) => void })

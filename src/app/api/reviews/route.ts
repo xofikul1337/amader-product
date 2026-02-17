@@ -2,13 +2,20 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
-const HASH_SALT = process.env.REVIEW_HASH_SALT ?? "amader-product";
+const HASH_SALT = process.env.REVIEW_HASH_SALT ?? "";
 
 const hashValue = (value: string) =>
   crypto.createHash("sha256").update(value).digest("hex");
 
 export async function POST(request: Request) {
   try {
+    if (!HASH_SALT) {
+      return NextResponse.json(
+        { error: "Missing REVIEW_HASH_SALT env var." },
+        { status: 500 },
+      );
+    }
+
     const body = await request.json();
     const productId = String(body?.productId ?? "");
     const rating = Number(body?.rating ?? 0);

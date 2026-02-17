@@ -1,10 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit, Sora } from "next/font/google";
+import { Suspense } from "react";
 import BottomNav from "@/components/BottomNav";
 import CategoryDrawer from "@/components/CategoryDrawer";
-import FacebookPixel from "@/components/FacebookPixel";
 import PwaRegister from "@/components/PwaRegister";
 import SiteFooter from "@/components/SiteFooter";
+import TagManager from "@/components/TagManager";
+import TrackingEvents from "@/components/TrackingEvents";
+import { getGtmContainerId } from "@/lib/tracking.server";
 import "./globals.css";
 
 const bodyFont = Sora({
@@ -26,7 +29,6 @@ export const metadata: Metadata = {
   },
   applicationName: "Amader Product",
   manifest: "/manifest.webmanifest",
-  themeColor: "#e07a4f",
   description:
     "Amader Product brings premium Bangladeshi pantry staples and artisan foods to your door — honey, ghee, oils, dates, and more.",
   keywords: [
@@ -70,15 +72,24 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export const viewport: Viewport = {
+  themeColor: "#e07a4f",
+};
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const gtmId = await getGtmContainerId();
+
   return (
     <html lang="bn">
       <body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
-        <FacebookPixel />
+        <TagManager gtmId={gtmId} />
+        <Suspense fallback={null}>
+          <TrackingEvents />
+        </Suspense>
         <PwaRegister />
         {children}
         <SiteFooter />

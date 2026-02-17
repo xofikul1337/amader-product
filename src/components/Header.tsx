@@ -2,6 +2,7 @@ import Link from "next/link";
 import FavoritesWidget from "@/components/FavoritesWidget";
 import CartWidget from "@/components/CartWidget";
 import { getCategories } from "@/data/products.server";
+import ProductSearch from "@/components/ProductSearch";
 
 export default async function Header() {
   const categories = await getCategories();
@@ -48,33 +49,7 @@ export default async function Header() {
           </div>
 
           <div className="mt-4">
-            <div className="search-pill flex items-center gap-2 rounded-full bg-white px-3 py-2 text-slate-900">
-              <span className="grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-accent">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                  <line x1="12" y1="19" x2="12" y2="23" />
-                  <line x1="8" y1="23" x2="16" y2="23" />
-                </svg>
-              </span>
-              <input
-                type="search"
-                placeholder="Search entire store here ..."
-                className="flex-1 bg-transparent text-sm outline-none"
-              />
-              <button className="rounded-full bg-accent-2 px-4 py-2 text-xs font-semibold text-white">
-                Search
-              </button>
-            </div>
+            <ProductSearch variant="mobile" />
           </div>
 
           <div className="mt-4 flex items-center justify-center gap-3 text-sm font-semibold text-white/90">
@@ -109,33 +84,7 @@ export default async function Header() {
               </span>
             </Link>
 
-            <div className="desktop-search">
-              <div className="desktop-search__shell">
-                <input type="search" placeholder="Search entire store here ..." />
-                <select>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category === "All Product" ? "All Category" : category}
-                    </option>
-                  ))}
-                </select>
-                <button type="button" aria-label="Search">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            <ProductSearch variant="desktop" categories={categories} />
 
             <div className="desktop-icons">
               <FavoritesWidget />

@@ -11,6 +11,13 @@ import {
   updateQuantity,
 } from "@/lib/cart";
 import { formatTaka } from "@/lib/format";
+import {
+  trackAddPaymentInfo,
+  trackAddShippingInfo,
+  trackBeginCheckout,
+  trackEvent,
+  trackPurchase,
+} from "@/lib/tracking.client";
 
 const shippingOptions = [
   { id: "inside", label: "ঢাকা শহরের ভিতরে", cost: 60 },
@@ -58,6 +65,23 @@ export default function CheckoutClient() {
   const shippingCost =
     shippingOptions.find((option) => option.id === shipping)?.cost ?? 0;
   const total = subtotal + shippingCost;
+  const trackingItems = useMemo(
+    () =>
+      items.map((item) => ({
+        id: item.id,
+        slug: item.slug,
+        name: item.name,
+        price: item.price,
+        salePrice: item.salePrice ?? null,
+        quantity: item.quantity,
+      })),
+    [items],
+  );
+
+  useEffect(() => {
+    if (items.length === 0) return;
+    trackBeginCheckout(trackingItems, shippingCost);
+  }, [items.length, trackingItems, shippingCost]);
 
   const handleSubmit = async () => {
     setSubmitMessage("");
@@ -72,6 +96,15 @@ export default function CheckoutClient() {
 
     setSubmitting(true);
     try {
+      trackAddShippingInfo(
+        trackingItems,
+        shippingOptions.find((option) => option.id === shipping)?.label ?? shipping,
+      );
+      trackAddPaymentInfo(
+        trackingItems,
+        paymentOptions.find((option) => option.id === payment)?.label ?? payment,
+      );
+
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -94,12 +127,16 @@ export default function CheckoutClient() {
       clearCart();
       setItems([]);
       setForm({ name: "", phone: "", address: "", note: "" });
+      trackPurchase(payload.order_id ?? `order_${Date.now()}`, trackingItems, shippingCost);
       setSubmitMessage(
         payload?.order_id
           ? `Order placed. ID: ${payload.order_id.slice(0, 8)}`
           : "Order placed successfully.",
       );
     } catch (error) {
+      trackEvent("checkout_error", {
+        message: error instanceof Error ? error.message : "Order submission failed.",
+      });
       setSubmitMessage(
         error instanceof Error ? error.message : "Order submission failed.",
       );

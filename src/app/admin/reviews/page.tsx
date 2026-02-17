@@ -22,6 +22,22 @@ type ReviewItem = {
   product?: { name: string | null } | null;
 };
 
+const normalizeReviewRow = (row: any): ReviewItem => ({
+  id: String(row?.id ?? ""),
+  rating: Number(row?.rating ?? 0),
+  title: row?.title ? String(row.title) : null,
+  body: String(row?.body ?? ""),
+  status:
+    row?.status === "approved" || row?.status === "rejected"
+      ? row.status
+      : "pending",
+  guest_name: row?.guest_name ? String(row.guest_name) : null,
+  created_at: String(row?.created_at ?? new Date().toISOString()),
+  product: Array.isArray(row?.product)
+    ? (row.product[0] ?? null)
+    : (row?.product ?? null),
+});
+
 export default function AdminReviewsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sessionChecked, setSessionChecked] = useState(false);
@@ -138,7 +154,7 @@ export default function AdminReviewsPage() {
       setLoadingReviews(false);
       return;
     }
-    setReviews((data as ReviewItem[]) ?? []);
+    setReviews((data ?? []).map(normalizeReviewRow));
     setLoadingReviews(false);
   };
 

@@ -8,6 +8,7 @@ import CartMini from "@/components/CartMini";
 import type { Product } from "@/data/products";
 import { formatDiscount, formatTaka } from "@/lib/format";
 import { supabase } from "@/lib/supabase/client";
+import { trackViewItem } from "@/lib/tracking.client";
 
 type ReviewItem = {
   id: string;
@@ -20,6 +21,35 @@ type ReviewItem = {
 
 type ProductDetailClientProps = {
   product: Product;
+};
+
+const hasHtmlTag = (value: string) => /<\/?[a-z][\s\S]*>/i.test(value);
+
+const decodeHtmlEntities = (value: string) =>
+  value
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&");
+
+const escapeHtml = (value: string) =>
+  value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+const toDisplayHtml = (value: string) => {
+  const raw = (value ?? "").trim();
+  if (!raw) return "";
+  if (hasHtmlTag(raw)) return raw;
+
+  const decoded = decodeHtmlEntities(raw);
+  if (hasHtmlTag(decoded)) return decoded;
+
+  return `<p>${escapeHtml(raw).replace(/\n/g, "<br />")}</p>`;
 };
 
 export default function ProductDetailClient({ product }: ProductDetailClientProps) {
@@ -43,6 +73,26 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   const currentPrice = product.salePrice ?? product.price;
   const discount = formatDiscount(product.price, product.salePrice);
+  const descriptionHtml = useMemo(() => toDisplayHtml(product.details ?? ""), [product.details]);
+
+  useEffect(() => {
+    trackViewItem({
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      price: product.price,
+      salePrice: product.salePrice ?? null,
+      quantity: 1,
+      category: product.category,
+    });
+  }, [
+    product.id,
+    product.slug,
+    product.name,
+    product.price,
+    product.salePrice,
+    product.category,
+  ]);
 
   const loadReviews = useCallback(async () => {
     if (!product.id) return;
@@ -59,7 +109,10 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
 
   useEffect(() => {
     if (tab !== "reviews") return;
-    loadReviews();
+    const timer = window.setTimeout(() => {
+      void loadReviews();
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [tab, loadReviews]);
 
   const submitReview = async () => {
@@ -212,14 +265,23 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
         </div>
         <div className="product-tab-content">
           {tab === "description" ? (
-            <>
-              <p>{product.details}</p>
-              <ul>
-                {product.highlights.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </>
+            descriptionHtml ? (
+              <div
+                className="product-description"
+                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+              />
+            ) : (
+              <>
+                <p>{product.details}</p>
+                {product.highlights.length ? (
+                  <ul>
+                    {product.highlights.map((item) => (
+                      <li key={item}>{item}</li>
+                    ))}
+                  </ul>
+                ) : null}
+              </>
+            )
           ) : (
             <div className="review-section">
               <div className="review-list">

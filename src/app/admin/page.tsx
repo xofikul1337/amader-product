@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase/client";
 import AdminDrawer from "@/components/admin/AdminDrawer";
 import AdminSidebar from "@/components/admin/AdminSidebar";
+import RichTextEditor from "@/components/admin/RichTextEditor";
 
 type Category = {
   id: string;
@@ -602,15 +603,17 @@ export default function AdminDashboard() {
               />
             </div>
 
-            <textarea
-              className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs"
-              rows={4}
-              placeholder="Description"
-              value={form.description}
-              onChange={(event) =>
-                setForm({ ...form, description: event.target.value })
-              }
-            />
+            <div>
+              <label className="mb-2 block text-xs font-semibold text-slate-500">
+                Description
+              </label>
+              <RichTextEditor
+                value={form.description}
+                onChange={(value) => setForm({ ...form, description: value })}
+                placeholder="Write product description..."
+                minHeight={160}
+              />
+            </div>
 
             <div className="grid gap-3 md:grid-cols-2">
               <input
@@ -841,15 +844,19 @@ export default function AdminDashboard() {
                         setEditForm({ ...editForm, slug: event.target.value })
                       }
                     />
-                    <textarea
-                      className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs"
-                      rows={3}
-                      placeholder="Description"
-                      value={editForm.description}
-                      onChange={(event) =>
-                        setEditForm({ ...editForm, description: event.target.value })
-                      }
-                    />
+                    <div>
+                      <label className="mb-2 block text-xs font-semibold text-slate-500">
+                        Description
+                      </label>
+                      <RichTextEditor
+                        value={editForm.description}
+                        onChange={(value) =>
+                          setEditForm({ ...editForm, description: value })
+                        }
+                        placeholder="Write product description..."
+                        minHeight={140}
+                      />
+                    </div>
                     <div className="grid grid-cols-2 gap-2">
                       <input
                         className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs"

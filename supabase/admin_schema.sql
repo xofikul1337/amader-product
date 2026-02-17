@@ -75,6 +75,15 @@ create table if not exists public.order_status_history (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.tracking_settings (
+  key text primary key,
+  value text,
+  updated_at timestamptz not null default now(),
+  constraint tracking_settings_gtm_format_chk check (
+    key <> 'gtm_id' or value is null or value ~ '^GTM-[A-Za-z0-9]+$'
+  )
+);
+
 -- Trigger to keep updated_at consistent (uses existing set_updated_at)
 drop trigger if exists set_brands_updated_at on public.brands;
 create trigger set_brands_updated_at
@@ -96,6 +105,21 @@ create trigger set_variants_updated_at
 before update on public.product_variants
 for each row execute function public.set_updated_at();
 
+do $$
+begin
+  if exists (
+    select 1
+    from pg_proc
+    where pronamespace = 'public'::regnamespace
+      and proname = 'set_updated_at'
+  ) then
+    drop trigger if exists set_tracking_settings_updated_at on public.tracking_settings;
+    create trigger set_tracking_settings_updated_at
+    before update on public.tracking_settings
+    for each row execute function public.set_updated_at();
+  end if;
+end $$;
+
 -- RLS
 alter table public.brands enable row level security;
 alter table public.coupons enable row level security;
@@ -104,6 +128,7 @@ alter table public.order_notes enable row level security;
 alter table public.product_variants enable row level security;
 alter table public.variant_inventory enable row level security;
 alter table public.order_status_history enable row level security;
+alter table public.tracking_settings enable row level security;
 
 drop policy if exists "Brands: admin manage" on public.brands;
 create policy "Brands: admin manage"
@@ -147,7 +172,22 @@ on public.order_status_history for all
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Tracking settings: admin manage" on public.tracking_settings;
+create policy "Tracking settings: admin manage"
+on public.tracking_settings for all
+using (public.is_admin())
+with check (public.is_admin());
+
+drop policy if exists "Tracking settings: public read gtm" on public.tracking_settings;
+create policy "Tracking settings: public read gtm"
+on public.tracking_settings for select
+using (key = 'gtm_id');
+
 create index if not exists brands_slug_idx on public.brands (slug);
 create index if not exists coupons_code_idx on public.coupons (code);
 create index if not exists order_notes_order_idx on public.order_notes (order_id);
 create index if not exists variants_product_idx on public.product_variants (product_id);
+
+insert into public.tracking_settings (key, value)
+values ('gtm_id', null)
+on conflict (key) do nothing;
