@@ -1,4 +1,5 @@
 import { createServerSupabase } from "@/lib/supabase/server";
+import { unstable_noStore as noStore } from "next/cache";
 
 const GTM_PATTERN = /^GTM-[A-Z0-9]+$/i;
 
@@ -11,6 +12,9 @@ const sanitizeGtmId = (value: unknown) => {
 };
 
 export const getGtmContainerId = async () => {
+  // GTM ID can be changed from admin panel, so do not serve a build-time cached value.
+  noStore();
+
   const envFallback = sanitizeGtmId(
     process.env.NEXT_PUBLIC_GTM_ID ?? process.env.GTM_ID ?? "",
   );
@@ -26,4 +30,3 @@ export const getGtmContainerId = async () => {
   if (error || !data) return envFallback;
   return sanitizeGtmId(data.value) ?? envFallback;
 };
-
