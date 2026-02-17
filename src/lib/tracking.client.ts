@@ -107,15 +107,11 @@ export const trackPageView = (pathname: string, search = "") => {
     typeof window !== "undefined"
       ? `${window.location.origin}${pagePath}`
       : pagePath;
-  trackEvent(
-    "page_view",
-    {
-      page_path: pagePath,
-      page_location: location,
-      page_title: typeof document !== "undefined" ? document.title : undefined,
-    },
-    { dedupeKey: `page_view:${pagePath}` },
-  );
+  trackEvent("page_view", {
+    page_path: pagePath,
+    page_location: location,
+    page_title: typeof document !== "undefined" ? document.title : undefined,
+  });
 };
 
 export const trackSearch = (query: string, resultCount: number) => {
