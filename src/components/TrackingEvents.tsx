@@ -15,7 +15,7 @@ export default function TrackingEvents() {
           ? window.location.search.replace(/^\?/, "")
           : "";
       trackPageView(pathname, search);
-    }, 120);
+    }, 600);
     return () => window.clearTimeout(timer);
   }, [pathname]);
 
