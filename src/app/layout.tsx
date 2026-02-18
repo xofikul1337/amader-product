@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Outfit, Sora } from "next/font/google";
-import { Suspense } from "react";
 import BottomNav from "@/components/BottomNav";
 import CategoryDrawer from "@/components/CategoryDrawer";
 import PwaRegister from "@/components/PwaRegister";
@@ -87,9 +86,7 @@ export default async function RootLayout({
     <html lang="bn">
       <body className={`${bodyFont.variable} ${displayFont.variable} antialiased`}>
         <TagManager gtmId={gtmId} />
-        <Suspense fallback={null}>
-          <TrackingEvents />
-        </Suspense>
+        <TrackingEvents />
         <PwaRegister />
         {children}
         <SiteFooter />
