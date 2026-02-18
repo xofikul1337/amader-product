@@ -20,12 +20,6 @@ export default function TagManager({ gtmId }: TagManagerProps) {
               event: 'gtm.js',
             });
             window.dataLayer.push({
-              event: 'page_view',
-              page_path: window.location.pathname + window.location.search,
-              page_location: window.location.href,
-              page_title: document.title
-            });
-            window.dataLayer.push({
               event: 'gtm_bootstrap',
               app_name: 'amader-product',
               app_env: '${process.env.NODE_ENV ?? "development"}'

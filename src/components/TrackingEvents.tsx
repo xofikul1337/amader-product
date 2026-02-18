@@ -9,11 +9,14 @@ export default function TrackingEvents() {
 
   useEffect(() => {
     if (!pathname) return;
-    const search =
-      typeof window !== "undefined"
-        ? window.location.search.replace(/^\?/, "")
-        : "";
-    trackPageView(pathname, search);
+    const timer = window.setTimeout(() => {
+      const search =
+        typeof window !== "undefined"
+          ? window.location.search.replace(/^\?/, "")
+          : "";
+      trackPageView(pathname, search);
+    }, 120);
+    return () => window.clearTimeout(timer);
   }, [pathname]);
 
   return null;
